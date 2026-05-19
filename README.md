@@ -1,0 +1,2 @@
+# mypracticeproject
+kalievtemirlan
