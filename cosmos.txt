@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COSMOS — Путеводитель по Вселенной</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syncopate:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --void: #03040a;
+      --deep: #070b18;
+      --nebula1: #1a0533;
+      --nebula2: #0d1f3c;
+      --gold: #c8a96e;
+      --gold-light: #e8d0a0;
+      --silver: #8fa3c0;
+      --accent: #4fc3f7;
+      --glow: rgba(79, 195, 247, 0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--void);
+      color: var(--silver);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ── STARFIELD ── */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── NEBULA BG ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(26,5,51,0.7) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 80% 70%, rgba(13,31,60,0.6) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(7,11,24,0.9) 0%, transparent 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── LAYOUT ── */
+    .page { position: relative; z-index: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: linear-gradient(to bottom, rgba(3,4,10,0.95), transparent);
+      backdrop-filter: blur(2px);
+    }
+
+    .logo {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-decoration: none;
+      animation: fadeDown 1s ease both;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+      animation: fadeDown 1s 0.2s ease both;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--gold-light); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 4rem;
+      position: relative;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      animation: fadeUp 1s 0.4s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(4rem, 10vw, 9rem);
+      font-weight: 300;
+      line-height: 0.95;
+      color: #fff;
+      max-width: 700px;
+      margin-bottom: 0.3rem;
+      animation: fadeUp 1s 0.6s ease both;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: var(--silver);
+      max-width: 420px;
+      margin-top: 2rem;
+      margin-bottom: 3rem;
+      animation: fadeUp 1s 0.8s ease both;
+    }
+
+    .hero-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--void);
+      background: var(--gold);
+      border: none;
+      padding: 1rem 2.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.3s, transform 0.3s;
+      animation: fadeUp 1s 1s ease both;
+      display: inline-block;
+    }
+
+    .hero-btn:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: fadeUp 1s 1.3s ease both;
+    }
+
+    .scroll-hint span {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      color: rgba(143,163,192,0.5);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: lineGrow 2s 1.5s ease infinite;
+    }
+
+    /* ── SECTION ── */
+    section {
+      padding: 8rem 4rem;
+      position: relative;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 300;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 3rem;
+    }
+
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    /* ── OBJECTS GRID ── */
+    #objects {
+      background: linear-gradient(to bottom, transparent, rgba(13,31,60,0.3), transparent);
+    }
+
+    .objects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(143,163,192,0.08);
+      border: 1px solid rgba(143,163,192,0.08);
+    }
+
+    .obj-card {
+      background: var(--void);
+      padding: 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.4s;
+    }
+
+    .obj-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .obj-card:hover { background: rgba(7,11,24,0.9); }
+    .obj-card:hover::before { opacity: 1; }
+
+    .obj-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: rgba(143,163,192,0.4);
+      margin-bottom: 1.5rem;
+    }
+
+    .obj-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.2rem;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(79,195,247,0.4));
+    }
+
+    .obj-name {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--gold-light);
+      margin-bottom: 0.8rem;
+    }
+
+    .obj-desc {
+      font-size: 0.95rem;
+      color: var(--silver);
+      font-weight: 300;
+    }
+
+    .obj-fact {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(143,163,192,0.1);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── QUOTE ── */
+    .quote-section {
+      text-align: center;
+      padding: 10rem 4rem;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(26,5,51,0.4) 0%, transparent 70%);
+    }
+
+    .quote-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 4vw, 3.2rem);
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(255,255,255,0.85);
+      max-width: 820px;
+      margin: 0 auto 2rem;
+      line-height: 1.4;
+    }
+
+    .quote-author {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+    }
+
+    /* ── DATA ── */
+    #data {
+      background: linear-gradient(to bottom, transparent, rgba(26,5,51,0.2), transparent);
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      margin-bottom: 8rem;
+    }
+
+    .data-row:last-child { margin-bottom: 0; }
+    .data-row.reverse { direction: rtl; }
+    .data-row.reverse > * { direction: ltr; }
+
+    .data-visual {
+      aspect-ratio: 1;
+      max-width: 340px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .planet {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      position: relative;
+      animation: floatY 6s ease-in-out infinite;
+    }
+
+    .planet-sun {
+      background: radial-gradient(circle at 35% 35%, #fff7e6, #ffcc44, #ff8800, #cc4400);
+      box-shadow: 0 0 60px rgba(255,180,0,0.6), 0 0 120px rgba(255,100,0,0.3);
+    }
+
+    .planet-earth {
+      background: radial-gradient(circle at 35% 35%, #aadeff, #2266cc, #114499, #062244);
+      box-shadow: 0 0 40px rgba(30,100,200,0.4), 0 0 80px rgba(30,100,200,0.15);
+    }
+
+    .planet-mars {
+      background: radial-gradient(circle at 40% 30%, #ff9966, #cc4422, #882200, #441100);
+      box-shadow: 0 0 40px rgba(200,60,20,0.4), 0 0 80px rgba(200,60,20,0.15);
+    }
+
+    .orbit-ring {
+      position: absolute;
+      border: 1px solid rgba(143,163,192,0.2);
+      border-radius: 50%;
+      animation: spinRing 20s linear infinite;
+    }
+
+    .orbit-ring:nth-child(1) { width: 260px; height: 260px; }
+    .orbit-ring:nth-child(2) { width: 310px; height: 310px; animation-duration: 30s; animation-direction: reverse; }
+
+    .orbit-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .data-content { }
+
+    .data-stat {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .data-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .data-unit {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--silver);
+      letter-spacing: 0.1em;
+    }
+
+    .data-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: rgba(143,163,192,0.5);
+      margin-bottom: 1.5rem;
+    }
+
+    .data-text {
+      font-size: 1rem;
+      color: var(--silver);
+      font-weight: 300;
+      max-width: 380px;
+    }
+
+    .data-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 1.5rem 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(143,163,192,0.1);
+      padding: 3rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+    }
+
+    .footer-copy {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: rgba(143,163,192,0.35);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes lineGrow {
+      0%, 100% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+      50%       { opacity: 1; transform: scaleY(1); }
+    }
+
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-16px); }
+    }
+
+    @keyframes spinRing {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50%       { opacity: 1; }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* responsive */
+    @media (max-width: 900px) {
+      nav, .hero, section, footer { padding-left: 1.8rem; padding-right: 1.8rem; }
+      .objects-grid { grid-template-columns: 1fr; }
+      .data-row { grid-template-columns: 1fr; gap: 3rem; }
+      .data-row.reverse { direction: ltr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<div class="page">
+
+  <!-- NAV -->
+  <nav>
+    <a class="logo" href="#">COSMOS</a>
+    <ul class="nav-links">
+      <li><a href="#objects">Объекты</a></li>
+      <li><a href="#data">Данные</a></li>
+      <li><a href="#about">О сайте</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-eyebrow">/ Путеводитель по Вселенной</p>
+    <h1 class="hero-title">Познай<br><em>Бесконечность</em></h1>
+    <p class="hero-sub">
+      Вселенная насчитывает около 2 триллионов галактик. Каждая — целый мир.
+      Начни своё путешествие здесь.
+    </p>
+    <a class="hero-btn" href="#objects">Исследовать →</a>
+
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span>Прокрути вниз</span>
+    </div>
+  </section>
+
+  <!-- OBJECTS -->
+  <section id="objects">
+    <p class="section-label reveal">/ Космические объекты</p>
+    <h2 class="section-title reveal">Что <em>скрывает</em> темнота</h2>
+
+    <div class="objects-grid">
+      <div class="obj-card reveal">
+        <div class="obj-number">01</div>
+        <span class="obj-icon">⭐</span>
+        <div class="obj-name">Нейтронные звёзды</div>
+        <p class="obj-desc">Остатки массивных звёзд после взрыва сверхновой. Умещают массу Солнца в сфере диаметром 20 км.</p>
+        <div class="obj-fact">↳ Вращение: до 716 об/сек</div>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-number">02</div>
+        <span class="obj-icon">🌀</span>
+        <div class="obj-name">Чёрные дыры</div>
+        <p class="obj-desc">Области пространства с настолько сильной гравитацией, что даже свет не способен вырваться наружу.</p>
+        <div class="obj-fact">↳ M87*: 6.5 млрд масс Солнца</div>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-number">03</div>
+        <span class="obj-icon">🌌</span>
+        <div class="obj-name">Квазары</div>
+        <p class="obj-desc">Сверхмощные ядра далёких галактик — ярчайшие объекты во Вселенной, питаемые чёрными дырами.</p>
+        <div class="obj-fact">↳ Светимость: 100+ млрд Солнц</div>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-number">04</div>
+        <span class="obj-icon">💫</span>
+        <div class="obj-name">Пульсары</div>
+        <p class="obj-desc">Быстро вращающиеся нейтронные звёзды, излучающие пучки радиоволн с исключительной точностью.</p>
+        <div class="obj-fact">↳ Точность: ±10⁻¹⁵ сек/сек</div>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-number">05</div>
+        <span class="obj-icon">🌠</span>
+        <div class="obj-name">Туманности</div>
+        <p class="obj-desc">Огромные облака газа и пыли — колыбели звёзд. Именно здесь рождается новое поколение светил.</p>
+        <div class="obj-fact">↳ Туманность Орла: 70 св. лет</div>
+      </div>
+      <div class="obj-card reveal">
+        <div class="obj-number">06</div>
+        <span class="obj-icon">🪐</span>
+        <div class="obj-name">Экзопланеты</div>
+        <p class="obj-desc">Планеты за пределами Солнечной системы. Открыто свыше 5 600. Некоторые — потенциально обитаемы.</p>
+        <div class="obj-fact">↳ Обнаружено: 5 600+</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <div class="quote-section">
+    <p class="quote-text reveal">
+      «Космос — это всё, что было, что есть и что когда-либо будет»
+    </p>
+    <p class="quote-author reveal">— Карл Саган</p>
+  </div>
+
+  <!-- DATA -->
+  <section id="data">
+    <p class="section-label reveal">/ Масштаб Вселенной</p>
+    <h2 class="section-title reveal">Числа,<br>которые <em>поражают</em></h2>
+
+    <!-- Sun -->
+    <div class="data-row">
+      <div class="data-visual reveal">
+        <div class="orbit-ring"><div class="orbit-dot"></div></div>
+        <div class="orbit-ring"><div class="orbit-dot" style="top:auto;bottom:0;background:#c8a96e;box-shadow:0 0 8px #c8a96e"></div></div>
+        <div class="planet planet-sun"></div>
+      </div>
+      <div class="data-content reveal">
+        <div class="data-stat">
+          <span class="data-number">4.6</span>
+          <span class="data-unit">млрд лет</span>
+        </div>
+        <div class="data-label">Возраст Солнца</div>
+        <div class="data-divider"></div>
+        <p class="data-text">
+          Наша звезда находится примерно на середине своего жизненного пути. Ещё через 5 миллиардов лет она превратится в красного гиганта и поглотит внутренние планеты.
+        </p>
+      </div>
+    </div>
+
+    <!-- Earth -->
+    <div class="data-row reverse">
+      <div class="data-visual reveal">
+        <div class="orbit-ring"><div class="orbit-dot"></div></div>
+        <div class="orbit-ring"><div class="orbit-dot" style="top:auto;bottom:0;background:#c8a96e;box-shadow:0 0 8px #c8a96e"></div></div>
+        <div class="planet planet-earth"></div>
+      </div>
+      <div class="data-content reveal">
+        <div class="data-stat">
+          <span class="data-number">150</span>
+          <span class="data-unit">млн км</span>
+        </div>
+        <div class="data-label">Расстояние до Солнца</div>
+        <div class="data-divider"></div>
+        <p class="data-text">
+          Земля находится в «зоне обитаемости» — расстоянии, при котором вода существует в жидком состоянии. Свет от Солнца достигает нас за 8 минут 20 секунд.
+        </p>
+      </div>
+    </div>
+
+    <!-- Mars -->
+    <div class="data-row">
+      <div class="data-visual reveal">
+        <div class="orbit-ring"><div class="orbit-dot"></div></div>
+        <div class="orbit-ring"><div class="orbit-dot" style="top:auto;bottom:0;background:#c8a96e;box-shadow:0 0 8px #c8a96e"></div></div>
+        <div class="planet planet-mars"></div>
+      </div>
+      <div class="data-content reveal">
+        <div class="data-stat">
+          <span class="data-number">225</span>
+          <span class="data-unit">млн км</span>
+        </div>
+        <div class="data-label">Среднее расстояние до Марса</div>
+        <div class="data-divider"></div>
+        <p class="data-text">
+          Красная планета — следующий рубеж для человечества. Марс имеет сутки почти такой же длины, что и Земля: 24 часа 37 минут. Первый человеческий полёт планируется в 2030-х годах.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="about">
+    <span class="footer-logo">COSMOS</span>
+    <span class="footer-copy">Вселенная бесконечна — любопытство тоже</span>
+  </footer>
+
+</div>
+
+<script>
+  // ── STARFIELD ──
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const STARS = Array.from({ length: 320 }, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 1.4 + 0.2,
+    a: Math.random(),
+    speed: Math.random() * 0.006 + 0.002,
+    phase: Math.random() * Math.PI * 2,
+  }));
+
+  function drawStars(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of STARS) {
+      const alpha = 0.15 + 0.65 * (0.5 + 0.5 * Math.sin(t * s.speed + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,210,255,${alpha})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(drawStars);
+  }
+  requestAnimationFrame(drawStars);
+
+  // ── SCROLL REVEAL ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // stagger grid cards
+  document.querySelectorAll('.obj-card').forEach((card, i) => {
+    card.style.transitionDelay = `${i * 0.08}s`;
+  });
+</script>
+</body>
+</html>
